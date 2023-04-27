@@ -3,6 +3,7 @@ package com.example.quizapp
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
@@ -47,7 +49,7 @@ class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun setQuestion() {
-
+        defaultOptionView()
         tvQuestion?.text = questionList!![questionNumber - 1].question
         tvImage?.setImageResource(questionList!![questionNumber - 1].image)
         tvProgressBar?.progress = questionNumber
@@ -108,25 +110,77 @@ class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
         when (view?.id) {
             R.id.optionOne ->
                 tvOptionOne?.let {
-                selectedOptionView(it,0)
+                    selectedOptionView(it, 1)
                 }
 
             R.id.optionTwo ->
                 tvOptionTwo?.let {
-                    selectedOptionView(it,1)
+                    selectedOptionView(it, 2)
                 }
 
             R.id.optionThree ->
                 tvOptionThree?.let {
-                    selectedOptionView(it,2)
+                    selectedOptionView(it, 3)
                 }
 
             R.id.optionFour ->
                 tvOptionFour?.let {
-                    selectedOptionView(it,3)
+                    selectedOptionView(it, 4)
                 }
+
             R.id.tv_submit_button -> {
-                //TODO implement button functionality
+                if (mSelectedOption == 0) {
+                    questionNumber++
+
+                    when {
+                        questionNumber <= questionList!!.size -> {
+                            setQuestion()
+                        }
+
+                        else -> {
+                            Toast.makeText(this, "You made it to the end", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                    }
+                } else {
+                    when {
+                        (mSelectedOption  != questionList!![questionNumber - 1].correctAnswer) -> {
+                            answserResult(mSelectedOption, R.drawable.wrong_options_bg)
+                        }
+                    }
+                    answserResult(questionList!![questionNumber - 1].correctAnswer, R.drawable.correct_options_bg)
+                    tvSubmitBtn?.text = "Go to next Question"
+                    mSelectedOption = 0
+                }
+            }
+        }
+    }
+
+    private fun answserResult(answer: Int, drawable: Int) {
+        when (answer) {
+            1 -> {
+                tvOptionOne?.let {
+                    it.background = ContextCompat.getDrawable(this, drawable)
+                }
+            }
+
+            2 -> {
+                tvOptionTwo?.let {
+                    it.background = ContextCompat.getDrawable(this, drawable)
+                }
+            }
+
+            3 -> {
+                tvOptionThree?.let {
+                    it.background = ContextCompat.getDrawable(this, drawable)
+                }
+            }
+
+            4 -> {
+                tvOptionFour?.let {
+                    it.background = ContextCompat.getDrawable(this, drawable)
+                }
             }
         }
     }
