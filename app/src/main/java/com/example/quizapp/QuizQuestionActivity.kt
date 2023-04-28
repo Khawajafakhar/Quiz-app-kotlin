@@ -1,6 +1,7 @@
 package com.example.quizapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -20,8 +21,10 @@ class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
     private var questionList: ArrayList<Question>? = null
     private var questionNumber: Int = 1
     private var mSelectedOption: Int = 0
+    private var correctAnswers: Int = 0
     private var tvQuestion: TextView? = null
     private var tvImage: ImageView? = null
+    private var userName: String? = null
     private var tvProgressBar: ProgressBar? = null
     private var tvProgressNumber: TextView? = null
     private var tvOptionOne: TextView? = null
@@ -32,6 +35,8 @@ class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_question)
+
+        userName = intent.getStringExtra(Constants.USER_NAME)
         tvQuestion = findViewById(R.id.tv_question)
         tvImage = findViewById(R.id.tv_image)
         tvProgressBar = findViewById(R.id.tv_progress)
@@ -140,17 +145,35 @@ class QuizQuestionActivity : AppCompatActivity(), OnClickListener {
                         else -> {
                             Toast.makeText(this, "You made it to the end", Toast.LENGTH_SHORT)
                                 .show()
+                            var intent = Intent(this, ResultActivity::class.java)
+                            intent.putExtra(Constants.USER_NAME, userName)
+                            intent.putExtra(Constants.TOTAL_QUESTION, questionList!!.size)
+                            intent.putExtra(Constants.CORRECT_ANSWERS, correctAnswers)
+                            startActivity(intent)
+                            finish()
                         }
 
                     }
                 } else {
                     when {
-                        (mSelectedOption  != questionList!![questionNumber - 1].correctAnswer) -> {
+                        (mSelectedOption != questionList!![questionNumber - 1].correctAnswer) -> {
                             answserResult(mSelectedOption, R.drawable.wrong_options_bg)
                         }
+
+                        else -> {
+                            correctAnswers++
+                        }
                     }
-                    answserResult(questionList!![questionNumber - 1].correctAnswer, R.drawable.correct_options_bg)
-                    tvSubmitBtn?.text = "Go to next Question"
+                    answserResult(
+                        questionList!![questionNumber - 1].correctAnswer,
+                        R.drawable.correct_options_bg
+                    )
+                    if (questionNumber < questionList!!.size) {
+                        tvSubmitBtn?.text = "Go to next Question"
+                    }else{
+                        tvSubmitBtn?.text = "See Results"
+
+                    }
                     mSelectedOption = 0
                 }
             }
